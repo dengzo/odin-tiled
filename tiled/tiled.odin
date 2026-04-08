@@ -24,7 +24,7 @@ import filepath "core:path/filepath"
 parse_tilemap :: proc(path: string, alloc : mem.Allocator) -> Map {
 	m: Map
 	jdata, ok := os.read_entire_file(path, alloc)
-	if !ok {
+	if ok != os.ERROR_NONE {
 		fmt.println("ODIN_TILED: Failed to read file: ", path)
 		return m
 	}
@@ -49,7 +49,7 @@ parse_tilemap_and_tilesets :: proc(path: string, alloc : mem.Allocator) -> Map {
 	dir := filepath.dir(path, alloc)
 	for &ts in m.tilesets {
 		if ts.source == "" do continue
-		ts_path := filepath.join({dir, ts.source}, alloc)
+		ts_path, ok := filepath.join({dir, ts.source}, alloc)
 		external_ts := parse_tileset(ts_path, alloc)
 
 		// check could be better
@@ -69,7 +69,7 @@ parse_tilemap_and_tilesets :: proc(path: string, alloc : mem.Allocator) -> Map {
 parse_tileset :: proc(path: string, alloc : mem.Allocator) -> Tileset {
 	ts: Tileset
 	jdata, ok := os.read_entire_file(path, alloc)
-	if !ok {
+	if ok != os.ERROR_NONE {
 		fmt.print("Failed to read file: ", path, "\n")
 		return ts
 	}
